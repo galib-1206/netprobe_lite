@@ -1,6 +1,6 @@
 # Docker compose file for netprobe
 # https://github.com/plaintextpackets/netprobe_lite
-name: netprobe
+# name: netprobe
 
 networks:
   netprobe-net:
