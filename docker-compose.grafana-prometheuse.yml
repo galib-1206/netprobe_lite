@@ -1,0 +1,43 @@
+# docker-compose.grafana-prometheus.yml
+
+networks:
+  shared-net:
+    external: true
+
+services:
+  prometheus:
+    restart: always
+    container_name: netprobe-prometheus
+    image: "prom/prometheus"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus  # Persistent local storage for Prometheus data
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - shared-net  # Use shared network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
+  grafana:
+    restart: always
+    image: grafana/grafana-enterprise
+    container_name: netprobe-grafana
+    volumes:
+      - ./config/grafana/datasources/automatic.yml:/etc/grafana/provisioning/datasources/automatic.yml
+      - ./config/grafana/dashboards/main.yml:/etc/grafana/provisioning/dashboards/main.yml
+      - ./config/grafana/dashboards/netprobe.json:/var/lib/grafana/dashboards/netprobe.json
+      - grafana_data:/var/lib/grafana
+    ports:
+      - '3001:3000'
+    networks:
+      - shared-net  # Use shared network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
+volumes:
+  prometheus_data:
+  grafana_data:

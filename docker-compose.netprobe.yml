@@ -1,8 +1,8 @@
-# Docker compose file for netprobe
-# https://github.com/plaintextpackets/netprobe_lite
-# name: netprobe
+# docker-compose.netprobe.yml
 
 networks:
+  shared-net:
+    external: true
   netprobe-net:
 
 services:
@@ -14,6 +14,7 @@ services:
       - ./config/redis/redis.conf:/etc/redis/redis.conf
     networks:
       - netprobe-net
+      - shared-net  # Add shared network
     dns:
       - 8.8.8.8
       - 8.8.4.4      
@@ -29,6 +30,7 @@ services:
       MODULE: "NETPROBE"
     networks:
       - netprobe-net
+      - shared-net  # Add shared network
     dns:
       - 8.8.8.8
       - 8.8.4.4      
@@ -44,6 +46,7 @@ services:
       MODULE: "SPEEDTEST"
     networks:
       - netprobe-net
+      - shared-net  # Add shared network
     dns:
       - 8.8.8.8
       - 8.8.4.4      
@@ -59,44 +62,8 @@ services:
       MODULE: "PRESENTATION"
     networks:
       - netprobe-net
+      - shared-net  # Add shared network
     dns:
       - 8.8.8.8
       - 8.8.4.4      
 
-  prometheus:
-    restart: always
-    container_name: netprobe-prometheus
-    image: "prom/prometheus"
-    volumes:
-      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus  # Persistent local storage for Prometheus data
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    networks:
-      - netprobe-net
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4      
-
-  grafana:
-    restart: always
-    image: grafana/grafana-enterprise
-    container_name: netprobe-grafana
-    volumes:
-      - ./config/grafana/datasources/automatic.yml:/etc/grafana/provisioning/datasources/automatic.yml
-      - ./config/grafana/dashboards/main.yml:/etc/grafana/provisioning/dashboards/main.yml
-      - ./config/grafana/dashboards/netprobe.json:/var/lib/grafana/dashboards/netprobe.json
-      - grafana_data:/var/lib/grafana
-    ports:
-      - '3001:3000'
-    networks:
-      - netprobe-net
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4      
-      
-volumes:
-  prometheus_data:
-  grafana_data:
-  
